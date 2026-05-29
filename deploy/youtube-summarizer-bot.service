@@ -1,0 +1,17 @@
+[Unit]
+Description=YouTube Summarizer Telegram Bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=sammy
+Group=sammy
+WorkingDirectory=/opt/youtube-summarizer-bot
+ExecStart=/opt/youtube-summarizer-bot/venv/bin/python main.py
+Restart=on-failure
+RestartSec=10
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
