@@ -5,6 +5,8 @@ from typing import Optional
 import edge_tts
 from loguru import logger
 
+from .config import App
+
 MAX_AUDIO_BYTES = 45 * 1024 * 1024  # 45 MB (Telegram limit is 50 MB)
 
 
@@ -91,10 +93,12 @@ LANGUAGE_ORDER = ['en', 'ru', *_OTHER_LANGS]
 VOICE_GROUPS_ORDER = LANGUAGE_ORDER
 
 
-def resolve_voice(voice: Optional[str], language: str = 'en') -> str:
+def resolve_voice(voice: Optional[str], language: str = App.DEFAULT_LANG) -> str:
     if voice and voice in VOICE_IDS:
         return voice
-    return DEFAULT_VOICE_BY_LANG.get(language, DEFAULT_VOICE_BY_LANG['en'])
+    return DEFAULT_VOICE_BY_LANG.get(
+        language, DEFAULT_VOICE_BY_LANG[App.DEFAULT_LANG],
+    )
 
 
 def get_voice_label(voice_id: str) -> str:
@@ -103,7 +107,7 @@ def get_voice_label(voice_id: str) -> str:
 
 async def synthesize(
     text: str,
-    language: str = 'en',
+    language: str = App.DEFAULT_LANG,
     output_path: str = 'output.mp3',
     voice: Optional[str] = None,
 ) -> Optional[str]:

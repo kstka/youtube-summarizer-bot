@@ -7,42 +7,59 @@ from .http_retry import LLM_CLIENT_TIMEOUT, RETRIABLE_EXC, with_retries
 
 SIZE_INSTRUCTIONS = {
     'short': (
-        'Write a compact interpretive summary. '
-        'Start with 1-2 sentences explaining the author’s central message: '
-        'what the author is trying to make the viewer understand, believe, or reconsider. '
-        'Then give 3-6 key points that support this message. '
-        'Do not make a generic topic list. Focus on the argument and why it matters.'
+        'Write a short self-contained narrative summary for audio playback. '
+        'Do not describe the content from the outside. Present the main idea directly. '
+        'Do not mention "the author", "the speaker", "the video", "the transcript", or "the viewer". '
+        'Start immediately with the central idea. '
+        'Explain what the content is really about, what conclusion follows from it, and why it matters. '
+        'Keep only the core thesis and the strongest supporting ideas. '
+        'Remove repetitions, secondary examples, names that are not essential, and side remarks. '
+        'Target length: 900-1400 characters including spaces. '
+        'Use 2-3 short paragraphs.'
     ),
 
     'medium': (
-        'Write a structured interpretive overview. '
-        'First explain the author’s main thesis and intended takeaway. '
-        'Then organize the summary by the logic of the video: how the author builds the argument, '
-        'which claims are central, what examples or evidence are used, and what conclusion follows. '
-        'Preserve nuance, contrasts, and causal links. '
-        'The reader should understand not only what was mentioned, but what the author wanted to communicate.'
+        'Write a self-contained narrative summary for audio playback. '
+        'Do not describe the content from the outside. Present the ideas directly as a coherent explanation. '
+        'Do not mention "the author", "the speaker", "the video", "the transcript", or "the viewer". '
+        'Do not write phrases like "the main point is that the author wants to show". '
+        'Start immediately with the central idea. '
+        'Explain the main thesis, the logic of the argument, the most important contrasts, and the final takeaway. '
+        'Keep only ideas that are necessary to understand the message. '
+        'Remove repetitions, weak examples, long lists, secondary names, personal digressions, and minor details. '
+        'The result should sound like a clear explanatory mini-essay, not like notes about a video. '
+        'Target length: 1800-2400 characters including spaces. '
+        'This limit is strict. Prefer a shorter summary over a complete but long one. '
+        'Use 4-5 short paragraphs.'
     ),
 
     'long': (
-        'Write a detailed interpretive summary. '
-        'Reconstruct the author’s argument from beginning to end. '
-        'Explain the central thesis, supporting arguments, examples, shifts in emphasis, implied assumptions, '
-        'and final takeaway. '
-        'Separate important ideas from minor details. '
-        'When the transcript is ambiguous, say so instead of inventing. '
-        'The goal is that a reader who did not watch the video understands the author’s message, reasoning, and tone.'
-    ),    
+        'Write a detailed self-contained narrative summary for audio playback. '
+        'Do not describe the content from the outside. Present the ideas directly as a coherent explanation. '
+        'Do not mention "the author", "the speaker", "the video", "the transcript", or "the viewer". '
+        'Reconstruct the argument from beginning to end, but remove repetition and filler. '
+        'Explain the central thesis, supporting arguments, important examples, key contrasts, shifts in emphasis, and final takeaway. '
+        'Separate central ideas from minor details. '
+        'Preserve nuance, causal links, and the internal logic of the content. '
+        'If something is unclear or the subtitles are fragmented, state the uncertainty briefly without inventing missing facts. '
+        'The result should let a person understand the message, reasoning, and tone without reading the transcript. '
+        'Target length: 4000-5500 characters including spaces. '
+        'Use short paragraphs and natural transitions.'
+    ),
 }
 
 BASE_SYSTEM_PROMPT = (
-    'You are an interpretive summarization assistant.\n'
-    'Your task is not to list topics, but to explain what the author is trying to communicate.\n'
-    'Identify the central thesis, the author’s intent, the logic of the argument, and the final takeaway.\n'
-    'Use only the provided transcript or subtitles. Do NOT add outside facts.\n'
-    'Do not quote long passages. Paraphrase.\n'
-    'If the author’s point is unclear or the subtitles are fragmented, say that clearly.\n'
-    'Avoid dry generic summaries like “the video discusses X”.\n'
-    'Output plain text only — no markdown tables, no code blocks.\n'
+    'You are an interpretive summarization assistant creating summaries for audio playback.\n'
+    'Your task is to turn subtitles into a clear, coherent narrative that explains the meaning of the content.\n'
+    'Do not create a meta-summary. Do not describe what someone says, explains, discusses, argues, or tries to prove.\n'
+    'Instead, express the intended message directly, as a standalone explanation.\n'
+    'Avoid phrases like "the author says", "the speaker explains", "the video discusses", "the transcript shows", or similar constructions.\n'
+    'Use only the provided transcript or subtitles. Do not add outside facts.\n'
+    'Separate central ideas from minor details. Remove repetition, filler, weak examples, and unnecessary names.\n'
+    'Preserve the main thesis, argument logic, important contrasts, causal links, and final takeaway.\n'
+    'The result should sound natural when converted to speech.\n'
+    'Prefer clarity, flow, and meaning over exhaustive coverage.\n'
+    'Output plain text only — no markdown formatting, no headings, no bullet points, no code blocks.\n'
 )
 
 

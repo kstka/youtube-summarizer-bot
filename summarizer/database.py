@@ -22,11 +22,11 @@ class Database:
 
     async def init_db(self):
         async with aiosqlite.connect(self.db_path) as db:
-            await db.execute('''
+            await db.execute(f'''
                 CREATE TABLE IF NOT EXISTS users (
                     user_id    INTEGER PRIMARY KEY,
                     size       TEXT NOT NULL DEFAULT 'medium',
-                    language   TEXT NOT NULL DEFAULT 'en',
+                    language   TEXT NOT NULL DEFAULT '{App.DEFAULT_LANG}',
                     created_at INTEGER NOT NULL
                 )
             ''')
@@ -39,7 +39,9 @@ class Database:
         if 'voice' not in columns:
             await db.execute('ALTER TABLE users ADD COLUMN voice TEXT')
 
-    async def ensure_user(self, user_id: int, size: str = 'medium', language: str = 'en') -> bool:
+    async def ensure_user(
+        self, user_id: int, size: str = 'medium', language: str = App.DEFAULT_LANG,
+    ) -> bool:
         async with aiosqlite.connect(self.db_path) as db:
             cursor = await db.execute('SELECT user_id FROM users WHERE user_id = ?', (user_id,))
             if await cursor.fetchone() is None:

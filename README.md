@@ -5,7 +5,7 @@ A Telegram bot that summarizes YouTube videos. Send a link and receive a text su
 ## Features
 
 - **Summarization via DeepSeek or OpenRouter** — choose the LLM provider in `.env`
-- **Subtitle extraction** — if the video has subtitles, the bot downloads VTT and extracts text
+- **Subtitle extraction** — if the video has subtitles, the bot fetches them via `youtube-transcript-api`
 - **Audio transcription** — when subtitles are missing, downloads audio (32 kbps mono) and transcribes via OpenRouter (Gemini 2.5 Flash)
 - **LLM ad cleanup** — sponsor segments, self-promo, and “like/subscribe” calls are stripped before summarization
 - **Transcript cache** — resending the same video reuses cached text without re-downloading
@@ -70,9 +70,9 @@ With the virtual environment active (or using `venv/bin/pip`):
 pip install -r requirements.txt
 ```
 
-### 4. Install ffmpeg (required)
+### 4. Install ffmpeg (required for audio fallback)
 
-`yt-dlp` and `edge-tts` need ffmpeg for audio conversion.
+When a video has no subtitles, the bot downloads audio with `pytubefix` and converts it to mono MP3 (16 kHz, 32 kbps) with `ffmpeg` before sending it to OpenRouter for transcription. Videos with subtitles do not use `ffmpeg`.
 
 ```bash
 # Ubuntu / Debian
@@ -210,8 +210,8 @@ Logs go to stderr and to `{LOG_DIR}/bot.log`.
 
 1. User sends a YouTube link.
 2. The bot checks the transcript cache; if the video was processed before, cached text is reused.
-3. Otherwise: download VTT subtitles via `yt-dlp` and parse with `webvtt-py`.
-4. If there are no subtitles: download audio (32 kbps, mono, 16 kHz) and transcribe via OpenRouter.
+3. Otherwise: fetch subtitles via `youtube-transcript-api`.
+4. If there are no subtitles: download audio with `pytubefix`, convert to mono MP3 (16 kHz, 32 kbps) with `ffmpeg`, and transcribe via OpenRouter.
 5. The transcript is cleaned with the LLM (ads, sponsors, “like/subscribe”).
 6. Clean text is cached and sent to the configured LLM for summarization.
 7. Summary is delivered as `.txt` and `.md` and stored under `cache/summaries/` keyed by `video_id`, size, language, and LLM provider.
@@ -221,15 +221,21 @@ Logs go to stderr and to `{LOG_DIR}/bot.log`.
 
 ## Dependencies
 
+### Python packages
+
 - `aiogram` — Telegram Bot API
-- `yt-dlp` — subtitles and audio from YouTube
+- `youtube-transcript-api` — fetch YouTube subtitles
+- `pytubefix` — download audio when subtitles are unavailable
 - `aiohttp` — async HTTP to LLM APIs
 - `aiosqlite` — SQLite user settings
 - `edge-tts` — speech synthesis (Microsoft Edge TTS)
 - `python-dotenv` — load `.env`
 - `loguru` — logging (console + rotation under `logs/`)
 - `sentry-sdk` — error monitoring (optional, via `SENTRY_DSN`)
-- `webvtt-py` — VTT subtitle parsing
+
+### System
+
+- `ffmpeg` — convert downloaded YouTube audio to mono MP3 before transcription (audio fallback only)
 
 ## License
 
