@@ -3,16 +3,25 @@ import re
 import subprocess
 import asyncio
 import base64
+import threading
 import aiohttp
 from loguru import logger
 from typing import Optional, Tuple
 
-from .config import Audio, App
+from .config import Audio
 from .http_retry import LLM_CLIENT_TIMEOUT, RETRIABLE_EXC, with_retries
 from .llm import clean_ads
+from .youtube_proxy import (
+    install_pytubefix_proxy,
+    pick_proxy,
+    proxy_config_for_transcript_api,
+    proxy_log_label,
+)
 from . import cache
 
 SUPPORTED_LANGS = ['en', 'ja', 'ko', 'de', 'fr', 'ru', 'it', 'es', 'pl', 'uk', 'nl', 'zh-TW', 'zh-CN']
+
+_download_lock = threading.Lock()
 
 
 def extract_video_id(url: str) -> str:
@@ -40,7 +49,17 @@ async def try_subtitles(youtube_url: str, tmp_dir: str) -> Optional[str]:
         )
 
         video_id = extract_video_id(youtube_url)
-        api = YouTubeTranscriptApi()
+        proxy_url = pick_proxy()
+        if proxy_url:
+            logger.info(
+                'YouTube proxy selected method=subtitles proxy={}',
+                proxy_log_label(proxy_url),
+            )
+            api = YouTubeTranscriptApi(
+                proxy_config=proxy_config_for_transcript_api(proxy_url),
+            )
+        else:
+            api = YouTubeTranscriptApi()
 
         try:
             transcript = api.fetch(video_id, languages=SUPPORTED_LANGS)
@@ -71,9 +90,17 @@ async def download_audio(youtube_url: str, tmp_dir: str) -> Optional[str]:
         output_mp3 = os.path.join(tmp_dir, f'audio_{video_id}.mp3')
 
         try:
-            yt = pytube.YouTube(youtube_url)
-            stream = yt.streams.get_audio_only()
-            stream.download(output_path=tmp_dir, filename=f'audio_{video_id}.mp4')
+            with _download_lock:
+                proxy_url = pick_proxy()
+                if proxy_url:
+                    logger.info(
+                        'YouTube proxy selected method=audio proxy={}',
+                        proxy_log_label(proxy_url),
+                    )
+                    install_pytubefix_proxy(proxy_url)
+                yt = pytube.YouTube(youtube_url)
+                stream = yt.streams.get_audio_only()
+                stream.download(output_path=tmp_dir, filename=f'audio_{video_id}.mp4')
 
             subprocess.run([
                 'ffmpeg', '-y', '-i', temp_mp4,

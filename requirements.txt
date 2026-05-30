@@ -7,3 +7,4 @@ edge-tts>=6.0.0
 python-dotenv>=1.0.0
 youtube-transcript-api>=1.2.3
 pytubefix>=1.6.3
+PySocks>=1.7.1

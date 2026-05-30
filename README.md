@@ -55,13 +55,6 @@ Activate it when you work in a shell:
 source venv/bin/activate
 ```
 
-You can also run commands without activating, by calling the interpreter directly:
-
-```bash
-venv/bin/python main.py
-venv/bin/python -m pytest
-```
-
 ### 3. Install dependencies
 
 With the virtual environment active (or using `venv/bin/pip`):
@@ -75,7 +68,6 @@ pip install -r requirements.txt
 When a video has no subtitles, the bot downloads audio with `pytubefix` and converts it to mono MP3 (16 kHz, 32 kbps) with `ffmpeg` before sending it to OpenRouter for transcription. Videos with subtitles do not use `ffmpeg`.
 
 ```bash
-# Ubuntu / Debian
 sudo apt install ffmpeg
 ```
 
@@ -182,6 +174,14 @@ Used when `LLM_PROVIDER=openrouter`, and always for audio transcription when sub
 
 At least one of `DEEPSEEK_API_KEY` or `OPENROUTER_API_KEY` must be set for the chosen provider. If `LLM_PROVIDER=openrouter` and `OPENROUTER_API_KEY` is empty, summarization will not work.
 
+### YouTube (optional)
+
+Used when fetching subtitles or downloading audio. Leave empty for a direct connection.
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `YOUTUBE_PROXIES` | no | *(empty)* | Comma- or newline-separated proxy URLs. One proxy is chosen at random per YouTube request. Supported schemes: `http://`, `https://`, `socks5://`, `socks5h://`. |
+
 ### Application
 
 | Variable | Required | Default | Description |
@@ -210,8 +210,8 @@ Logs go to stderr and to `{LOG_DIR}/bot.log`.
 
 1. User sends a YouTube link.
 2. The bot checks the transcript cache; if the video was processed before, cached text is reused.
-3. Otherwise: fetch subtitles via `youtube-transcript-api`.
-4. If there are no subtitles: download audio with `pytubefix`, convert to mono MP3 (16 kHz, 32 kbps) with `ffmpeg`, and transcribe via OpenRouter.
+3. Otherwise: fetch subtitles via `youtube-transcript-api` (via a random proxy from `YOUTUBE_PROXIES` when configured).
+4. If there are no subtitles: download audio with `pytubefix` (same proxy pool), convert to mono MP3 (16 kHz, 32 kbps) with `ffmpeg`, and transcribe via OpenRouter.
 5. The transcript is cleaned with the LLM (ads, sponsors, “like/subscribe”).
 6. Clean text is cached and sent to the configured LLM for summarization.
 7. Summary is delivered as `.txt` and `.md` and stored under `cache/summaries/` keyed by `video_id`, size, language, and LLM provider.
@@ -226,6 +226,7 @@ Logs go to stderr and to `{LOG_DIR}/bot.log`.
 - `aiogram` — Telegram Bot API
 - `youtube-transcript-api` — fetch YouTube subtitles
 - `pytubefix` — download audio when subtitles are unavailable
+- `PySocks` — SOCKS5 proxy support for YouTube requests
 - `aiohttp` — async HTTP to LLM APIs
 - `aiosqlite` — SQLite user settings
 - `edge-tts` — speech synthesis (Microsoft Edge TTS)

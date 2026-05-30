@@ -5,6 +5,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+def _load_youtube_proxies() -> tuple[str, ...]:
+    from .youtube_proxy import load_proxies_from_env
+
+    return tuple(load_proxies_from_env())
+
+
 @dataclass
 class Telegram:
     BOT_TOKEN: str = os.environ.get('BOT_TOKEN', '')
@@ -29,6 +35,11 @@ class OpenRouter:
 class Audio:
     MODEL: str = os.environ.get('AUDIO_MODEL', 'google/gemini-2.5-flash')
     BASE_URL: str = 'https://openrouter.ai/api/v1'
+
+
+@dataclass
+class YouTube:
+    PROXIES: tuple[str, ...] = _load_youtube_proxies()
 
 
 @dataclass
