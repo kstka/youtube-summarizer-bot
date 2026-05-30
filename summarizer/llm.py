@@ -13,9 +13,10 @@ SIZE_INSTRUCTIONS = {
         'Start immediately with the central idea. '
         'Explain what the content is really about, what conclusion follows from it, and why it matters. '
         'Keep only the core thesis and the strongest supporting ideas. '
+        'If the content contains a key story, case, personal episode, or central example that is necessary to understand the context, include it briefly. '
         'Remove repetitions, secondary examples, names that are not essential, and side remarks. '
-        'Target length: 900-1400 characters including spaces. '
-        'Use 2-3 short paragraphs.'
+        'Target length: 1350-2100 characters including spaces. '
+        'Use 3-4 short paragraphs.'
     ),
 
     'medium': (
@@ -26,11 +27,13 @@ SIZE_INSTRUCTIONS = {
         'Start immediately with the central idea. '
         'Explain the main thesis, the logic of the argument, the most important contrasts, and the final takeaway. '
         'Keep only ideas that are necessary to understand the message. '
+        'If there is a key story, case, personal episode, conflict, or central example that gives the whole content its meaning, retell it clearly enough for the listener to understand the context. '
+        'Do not remove a story if later conclusions depend on it. '
         'Remove repetitions, weak examples, long lists, secondary names, personal digressions, and minor details. '
         'The result should sound like a clear explanatory mini-essay, not like notes about a video. '
-        'Target length: 1800-2400 characters including spaces. '
+        'Target length: 2700-3600 characters including spaces. '
         'This limit is strict. Prefer a shorter summary over a complete but long one. '
-        'Use 4-5 short paragraphs.'
+        'Use 5-7 short paragraphs.'
     ),
 
     'long': (
@@ -39,11 +42,13 @@ SIZE_INSTRUCTIONS = {
         'Do not mention "the author", "the speaker", "the video", "the transcript", or "the viewer". '
         'Reconstruct the argument from beginning to end, but remove repetition and filler. '
         'Explain the central thesis, supporting arguments, important examples, key contrasts, shifts in emphasis, and final takeaway. '
+        'If the content contains a key story, case, personal episode, conflict, or central example, include it in enough detail to preserve the context and make the later interpretation understandable. '
+        'Do not summarize away important narrative context if it is needed to understand the emotional, practical, or argumentative meaning of the content. '
         'Separate central ideas from minor details. '
         'Preserve nuance, causal links, and the internal logic of the content. '
         'If something is unclear or the subtitles are fragmented, state the uncertainty briefly without inventing missing facts. '
-        'The result should let a person understand the message, reasoning, and tone without reading the transcript. '
-        'Target length: 4000-5500 characters including spaces. '
+        'The result should let a person understand the message, reasoning, tone, and key context without reading the transcript. '
+        'Target length: 6000-8250 characters including spaces. '
         'Use short paragraphs and natural transitions.'
     ),
 }
@@ -56,7 +61,9 @@ BASE_SYSTEM_PROMPT = (
     'Avoid phrases like "the author says", "the speaker explains", "the video discusses", "the transcript shows", or similar constructions.\n'
     'Use only the provided transcript or subtitles. Do not add outside facts.\n'
     'Separate central ideas from minor details. Remove repetition, filler, weak examples, and unnecessary names.\n'
-    'Preserve the main thesis, argument logic, important contrasts, causal links, and final takeaway.\n'
+    'However, if the content contains a key story, case, personal episode, conflict, or central example that is necessary to understand the context, include it clearly and concisely.\n'
+    'Do not remove narrative context when later conclusions depend on it.\n'
+    'Preserve the main thesis, argument logic, important contrasts, causal links, key context, and final takeaway.\n'
     'The result should sound natural when converted to speech.\n'
     'Prefer clarity, flow, and meaning over exhaustive coverage.\n'
     'Output plain text only — no markdown formatting, no headings, no bullet points, no code blocks.\n'

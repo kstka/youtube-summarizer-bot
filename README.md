@@ -116,6 +116,7 @@ sudo systemctl daemon-reload
 ```bash
 sudo systemctl enable youtube-summarizer-bot
 sudo systemctl start youtube-summarizer-bot
+systemctl status youtube-summarizer-bot
 ```
 
 Check status:
