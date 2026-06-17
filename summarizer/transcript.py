@@ -4,6 +4,8 @@ import subprocess
 import asyncio
 import base64
 import threading
+from urllib.parse import parse_qs, urlparse
+
 import aiohttp
 from loguru import logger
 from typing import Optional, Tuple
@@ -24,17 +26,25 @@ SUPPORTED_LANGS = ['en', 'ja', 'ko', 'de', 'fr', 'ru', 'it', 'es', 'pl', 'uk', '
 _download_lock = threading.Lock()
 
 
-def extract_video_id(url: str) -> str:
-    patterns = [
-        r'(?:youtube\.com/watch\?v=|youtu\.be/)([a-zA-Z0-9_-]{11})',
-        r'youtube\.com/embed/([a-zA-Z0-9_-]{11})',
-        r'youtube\.com/shorts/([a-zA-Z0-9_-]{11})',
-    ]
-    for p in patterns:
-        m = re.search(p, url)
-        if m:
-            return m.group(1)
-    return re.sub(r'[^a-zA-Z0-9_-]', '', url)[:20]
+_YT_ID = r'([a-zA-Z0-9_-]{11})'
+_YT_ID_PATTERNS = [
+    rf'(?:youtube\.com/watch\?.*v=|youtu\.be/){_YT_ID}',
+    rf'youtube\.com/embed/{_YT_ID}',
+    rf'youtube\.com/shorts/{_YT_ID}',
+    rf'youtube\.com/live/{_YT_ID}',
+]
+
+
+def extract_video_id(url: str) -> Optional[str]:
+    for pattern in _YT_ID_PATTERNS:
+        match = re.search(pattern, url)
+        if match:
+            return match.group(1)
+    parsed = urlparse(url)
+    video_id = parse_qs(parsed.query).get('v', [None])[0]
+    if video_id and re.fullmatch(r'[a-zA-Z0-9_-]{11}', video_id):
+        return video_id
+    return None
 
 
 async def try_subtitles(youtube_url: str, tmp_dir: str) -> Optional[str]:

@@ -36,6 +36,7 @@ from .messages import (
     FAIL_SUMMARY,
     FAIL_TRANSCRIPT,
     INVALID_OPTION,
+    INVALID_YOUTUBE_URL,
     LANGUAGE_PICKER_TITLE,
     SOURCE_CODE_BUTTON,
     STATUS_EXTRACTING,
@@ -394,6 +395,15 @@ async def handle_message(message: types.Message):
     lang = settings.get('language', App.DEFAULT_LANG)
     voice = settings.get('voice')
     vid = extract_video_id(url)
+    if not vid:
+        logger.warning(
+            'Invalid YouTube URL user_id={}',
+            message.from_user.id,
+        )
+        logger.warning('Invalid YouTube URL url={}', url)
+        await message.answer(INVALID_YOUTUBE_URL)
+        return
+
     provider = App.LLM_PROVIDER
     effective_voice = resolve_voice(voice, lang)
     temp_dir = tempfile.mkdtemp(prefix='yt_summary_')
@@ -401,6 +411,7 @@ async def handle_message(message: types.Message):
         'Summarize request user_id={} video_id={} size={} language={} provider={}',
         message.from_user.id, vid, size, lang, provider,
     )
+    logger.info('Summarize request url={}', url)
 
     try:
         cached_summary = cache.load_summary(vid, size, lang, provider)

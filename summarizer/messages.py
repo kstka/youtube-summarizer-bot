@@ -17,6 +17,10 @@ PASSWORD_INCORRECT = '❌ Incorrect password. Try again.'
 VOICE_RESET_TOAST = '↩️ Voice reset to language default'
 UNKNOWN_VOICE = '❓ Unknown voice'
 INVALID_OPTION = '⚠️ Invalid option'
+INVALID_YOUTUBE_URL = (
+    '😕 Could not recognize the YouTube video ID. '
+    'Send a direct link (watch, youtu.be, shorts, or live).'
+)
 UNKNOWN_VOICE_GROUP = '❓ Unknown group'
 
 BCAST_REPLY_HINT = '📢 Reply to a message with /bcast to broadcast.'
